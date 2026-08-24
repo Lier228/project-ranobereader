@@ -129,6 +129,9 @@ public class NovelService {
                 request.tomeNumber() != null ? request.tomeNumber() : 1
         );
 
+        System.out.println("CHAPTER NUMBER: " + chapter.getChapterNumber());
+        System.out.println("TITLE: " + chapter.getTitle());
+        System.out.println("CONTENT: " + chapter.getContent());
         return ChapterResponse.from(chapterRepository.save(chapter));
     }
 

@@ -46,7 +46,7 @@ VALUES
         'That Time I Got Reincarnated as a Slime',
         'tensei-shitara-slime',
         'После смерти обычный японский служащий Сатору Миками перерождается в другом мире в виде разумной слизи. Получив невероятные способности, он начинает строить собственное государство и постепенно сталкивается с могущественными существами нового мира.',
-        'https://static.wikia.nocookie.net/tensei-shitara-slime-datta-ken/images/a/a4/TenSura_X.jpg/revision/latest?cb=20231026115509',
+        'https://i.redd.it/main-manga-vol25-covers-normal-and-special-and-tensura-v0-tflrbcuizn5c1.jpg?width=1170&format=pjpg&auto=webp&s=725a2a75a6711e4c56c09c9a57e5255da99136c0',
         'Фузэ',
         'ONGOING'
     ),
@@ -56,7 +56,7 @@ VALUES
         'The Rising of the Shield Hero',
         'rising-of-the-shield-hero',
         'Наофуми Иватани призывают в другой мир вместе с тремя другими героями. Ему достается щит, а вскоре после прибытия он оказывается предан и опозорен. Теперь Наофуми вынужден самостоятельно становиться сильнее и защищать мир.',
-        'https://static.wikia.nocookie.net/the-rising-of-the-shield-hero/images/3/34/LN_Vol_1_ENG.jpg/revision/latest/scale-to-width-down/1200?cb=20181023115215',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQb4pxe_835OuzcD1Z7x8DvbnfuuUGUmpcRumOOjESS7gdNF_H5g8lc6gEY&s=10',
         'Анэко Юсаги',
         'ONGOING'
     ),
@@ -76,7 +76,7 @@ VALUES
         'Is It Wrong to Try to Pick Up Girls in a Dungeon?',
         'danmachi',
         'Белл Кранел — молодой искатель приключений, мечтающий стать настоящим героем. Отправившись в опасное подземелье города Орарио, он постепенно становится сильнее, встречает новых друзей и оказывается втянутым в события, связанные с богами и древними тайнами.',
-        'https://static.wikia.nocookie.net/dungeon-ni-deai-o-motomeru/images/2/26/Light_Novel_Volume_1.jpg/revision/latest?cb=20210415082425',
+        'https://cover.imglib.info/uploads/cover/dungeon-ni-deai-wo-motomeru-no-wa-machigatteiru-darou-ka/cover/c92e6e7e-2929-4b74-a3cc-4019dff11461.jpg',
         'Фудзино Оомори',
         'ONGOING'
     ),
@@ -86,7 +86,7 @@ VALUES
         'No Game No Life',
         'no-game-no-life',
         'Брат и сестра Сора и Сиро известны в интернете как непобедимые игроки. Однажды они получают приглашение от таинственного бога и оказываются в мире, где любые конфликты решаются исключительно играми.',
-        'https://static.wikia.nocookie.net/no-game-no-life/images/4/46/Light_Novel_Volume_1_Cover.jpeg/revision/latest?cb=20171107093418',
+        'https://images.penguinrandomhouse.com/cover/9781626920798',
         'Ю Камиya',
         'ONGOING'
     ),
@@ -96,7 +96,7 @@ VALUES
         'Sword Art Online',
         'sword-art-online',
         'Тысячи игроков оказываются заперты внутри виртуальной игры Sword Art Online. Единственный способ выбраться — пройти все уровни огромного летающего замка. Но смерть в игре означает смерть в реальном мире.',
-        'https://static.wikia.nocookie.net/sword-art-online/images/f/f4/Sword_Art_Online_Progressive_Volume_01.jpg/revision/latest?cb=20160320110613&path-prefix=ru',
+        'https://xlm.ru/storage/uploads/images/2021/08/12/rwrTx0M6CN7KpO0vDxOmkV06unpHg0JXHxpq2gSE.jpeg',
         'Рэки Кавахара',
         'ONGOING'
     ),
