@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+  <include file="changes/2026-08-14-12-16-41-create-auth-table.sql" relativeToChangelogFile="true"></include>
+  <include file="changes/2026-08-14-12-16-50-roles-feeding.sql" relativeToChangelogFile="true"></include>
+  <include file="changes/2026-08-14-12-15-54-create-ranobe-structure.sql" relativeToChangelogFile="true"></include>
+  <include file="changes/2026-08-14-12-17-00-seed-ranobe-data.sql" relativeToChangelogFile="true"></include>
+</databaseChangeLog>

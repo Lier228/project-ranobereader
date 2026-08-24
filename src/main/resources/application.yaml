@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: manga-reader
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ranobe
+    username: postgres
+    password: REMOVED_SECRET
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+server:
+  port: 8099
+
+app:
+  jwt:
+    issuer: manga-reader
+    ttl-seconds: 3600
+    secret: ${JWT_SECRET:MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDE=}
+
+  bootstrap-admin:
+    email: ${ADMIN_EMAIL:}
+    password: ${ADMIN_PASSWORD:}
+    full-name: ${ADMIN_FULL_NAME:System Administrator}
