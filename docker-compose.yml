@@ -1,0 +1,23 @@
+services:
+  my-project-backend-service:
+    image: 'ranobereader'
+    container_name: 'my-spring-boot-project-container'
+    depends_on:
+      - my-project-database-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://my-project-database-service:5432/ranobe
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=REMOVED_SECRET
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+    ports:
+      - 8888:8099
+
+  my-project-database-service:
+    image: 'postgres'
+    container_name: 'my-postgresql-database-container'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=REMOVED_SECRET
+      - POSTGRES_DB=ranobe
+    ports:
+      - 2345:5432
