@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RanobeReader - Онлайн читалка Ранобэ и Новелл</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script th:src="@{/js/app.js}" defer></script>
+</head>
+<body>
+<header class="main-header">
+    <div class="container header-content">
+        <a th:href="@{/}" class="logo" onclick="event.preventDefault(); showCatalogView();">
+            <span class="logo-icon">R</span>
+            <span>RanobeReader</span>
+        </a>
+
+        <nav id="header-nav" class="header-nav">
+            <button type="button" class="nav-button active" id="nav-catalog-btn" onclick="showCatalogView()">Каталог</button>
+            <button type="button" class="nav-button hidden" id="nav-bookmarks-btn" onclick="showBookmarksView()">Закладки</button>
+            <button type="button" class="nav-button hidden" id="nav-admin-btn" onclick="showAdminView()">Админ-панель</button>
+        </nav>
+
+        <!-- LOGGED-IN USER HEADER -->
+        <div id="header-user" class="header-user hidden">
+            <div class="user-info">
+                <strong id="header-user-name"></strong>
+                <span id="header-user-email"></span>
+            </div>
+            <button type="button" class="button button-danger" onclick="logout()">Выйти</button>
+        </div>
+
+        <!-- GUEST HEADER -->
+        <div id="header-guest" class="header-user">
+            <button type="button" class="button button-secondary" onclick="showAuthModal('login')">Вход</button>
+            <button type="button" class="button button-primary" onclick="showAuthModal('register')">Регистрация</button>
+        </div>
+    </div>
+</header>
+
+<main class="container main-content">
+    <div id="message-container"></div>
+
+    <!-- AUTHENTICATION SECTION (MODAL / OVERLAY) -->
+    <section id="authentication-section" class="modal-overlay hidden">
+        <div class="authentication-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div class="authentication-tabs" style="margin-bottom: 0; flex-grow: 1;">
+                    <button id="login-tab" type="button" class="authentication-tab active" onclick="showLoginForm()">Вход</button>
+                    <button id="register-tab" type="button" class="authentication-tab" onclick="showRegisterForm()">Регистрация</button>
+                </div>
+                <button type="button" class="button button-secondary button-small" onclick="closeAuthModal()" style="margin-left: 10px;">✕</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div id="login-form">
+                <div class="card-header">
+                    <h1>Вход в RanobeReader</h1>
+                    <p>Введите email и пароль для входа в аккаунт</p>
+                </div>
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input id="login-email" type="email" placeholder="user@ranobe.kz">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Пароль</label>
+                    <input id="login-password" type="password" placeholder="Введите пароль">
+                </div>
+                <button type="button" class="button button-primary button-full" onclick="login()">Войти</button>
+            </div>
+
+            <!-- REGISTER FORM -->
+            <div id="register-form" class="hidden">
+                <div class="card-header">
+                    <h1>Регистрация</h1>
+                    <p>Новый пользователь получит роль ROLE_USER</p>
+                </div>
+                <div class="form-group">
+                    <label for="register-full-name">Полное имя</label>
+                    <input id="register-full-name" type="text" placeholder="Иван Иванов">
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input id="register-email" type="email" placeholder="user@ranobe.kz">
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Пароль</label>
+                    <input id="register-password" type="password" placeholder="Минимум 6 символов">
+                </div>
+                <div class="form-group">
+                    <label for="register-repeat-password">Повторите пароль</label>
+                    <input id="register-repeat-password" type="password" placeholder="Повторите пароль">
+                </div>
+                <button type="button" class="button button-primary button-full" onclick="registerUser()">Зарегистрироваться</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- APPLICATION SECTION -->
+    <section id="application-section">
+        
+        <!-- PROFILE SUMMARY CARD (VISIBLE FOR LOGGED IN USERS) -->
+        <section id="profile-card" class="profile-card hidden">
+            <div id="profile-avatar" class="profile-avatar">U</div>
+            <div class="profile-information">
+                <span class="profile-label">Текущий пользователь</span>
+                <h2 id="profile-full-name"></h2>
+                <p id="profile-email"></p>
+                <div id="profile-roles" class="role-list"></div>
+            </div>
+        </section>
+
+        <!-- CATALOG VIEW -->
+        <section id="catalog-view-section">
+            <div class="page-heading">
+                <div>
+                    <h1>Каталог Ранобэ и Новелл</h1>
+                    <p>Читайте переводы лучших ранобэ в удобном формате</p>
+                </div>
+                <button type="button" class="button button-primary hidden" id="add-novel-btn" onclick="openAddNovelModal()">+ Добавить ранобэ</button>
+            </div>
+
+            <div class="filter-bar">
+                <input type="text" id="search-input" placeholder="Поиск ранобэ по названию..." onkeyup="handleSearchKeyup(event)">
+                <button type="button" class="button button-primary" onclick="loadCatalog(0)">Найти</button>
+            </div>
+            <div id="genre-filter-container" class="genre-pills"></div>
+
+            <div id="novel-grid" class="manga-grid"></div>
+
+            <!-- PAGINATION CONTAINER -->
+            <div id="catalog-pagination" class="pagination-container"></div>
+        </section>
+
+        <!-- NOVEL READER VIEW -->
+        <section id="reader-view-section" class="hidden">
+            <div class="reader-header">
+                <button type="button" class="button button-secondary" onclick="showCatalogView()">← Назад в каталог</button>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button type="button" class="button button-secondary hidden" id="edit-novel-btn" onclick="openEditNovelModal()">✎ Редактировать ранобэ</button>
+                    <button type="button" class="button button-danger hidden" id="admin-delete-novel-btn" onclick="confirmDeleteCurrentNovel()">Удалить ранобэ</button>
+                    <button type="button" class="button button-primary hidden" id="add-chapter-btn" onclick="openAddChapterModal()">+ Добавить главу</button>
+                    <div class="bookmark-control">
+                        <label for="novel-bookmark-select">Статус:</label>
+                        <select id="novel-bookmark-select" onchange="updateNovelBookmark()">
+                            <option value="">Не добавлено</option>
+                            <option value="READING">Читаю</option>
+                            <option value="PLANNED">В планах</option>
+                            <option value="COMPLETED">Прочитано</option>
+                            <option value="DROPPED">Брошено</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="novel-details-card" class="content-card manga-details-card"></div>
+
+            <div class="reader-container content-card">
+                <div class="chapter-bar" style="justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <label for="chapter-select">Выберите главу:</label>
+                        <select id="chapter-select" onchange="onChapterSelectChange()"></select>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" class="button button-secondary button-small hidden" id="edit-chapter-btn" onclick="openEditChapterModal()">✎ Редактировать главу</button>
+                        <button type="button" class="button button-danger button-small hidden" id="delete-chapter-btn" onclick="confirmDeleteCurrentChapter()">Удалить эту главу</button>
+                    </div>
+                </div>
+
+                <div class="reader-text-area">
+                    <h2 id="chapter-reader-title" class="chapter-reader-title"></h2>
+                    <div id="chapter-text-content" class="chapter-text-content"></div>
+                </div>
+
+                <div class="reader-controls" style="padding: 20px;">
+                    <button type="button" class="button button-secondary" id="prev-chapter-btn" onclick="prevChapter()">← Пред. глава</button>
+                    <button type="button" class="button button-primary" id="next-chapter-btn" onclick="nextChapter()">След. глава →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- BOOKMARKS VIEW -->
+        <section id="bookmarks-view-section" class="hidden">
+            <div class="page-heading">
+                <div>
+                    <h1>Мои Закладки</h1>
+                    <p>Сохраненные новеллы</p>
+                </div>
+            </div>
+
+            <div class="bookmark-tabs">
+                <button type="button" class="bookmark-tab active" onclick="filterBookmarks('')">Все</button>
+                <button type="button" class="bookmark-tab" onclick="filterBookmarks('READING')">Читаю</button>
+                <button type="button" class="bookmark-tab" onclick="filterBookmarks('PLANNED')">В планах</button>
+                <button type="button" class="bookmark-tab" onclick="filterBookmarks('COMPLETED')">Прочитано</button>
+                <button type="button" class="bookmark-tab" onclick="filterBookmarks('DROPPED')">Брошено</button>
+            </div>
+
+            <div id="bookmarks-grid" class="manga-grid"></div>
+        </section>
+
+        <!-- ADMIN VIEW -->
+        <section id="admin-section" class="hidden">
+            <div class="page-heading">
+                <div>
+                    <h1>Панель Администратора</h1>
+                    <p>Управление пользователями и правами доступа</p>
+                </div>
+                <button type="button" class="button button-secondary" onclick="loadAdminData()">Обновить данные</button>
+            </div>
+
+            <div class="admin-grid">
+                <!-- USERS TABLE -->
+                <section class="content-card">
+                    <div class="content-card-header">
+                        <div>
+                            <h2>Пользователи</h2>
+                            <p>Назначение и снятие ролей</p>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Пользователь</th>
+                                <th>Роли</th>
+                                <th>Назначить роль</th>
+                            </tr>
+                            </thead>
+                            <tbody id="users-table-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- ROLES MANAGEMENT -->
+                <section class="content-card">
+                    <div class="content-card-header">
+                        <div>
+                            <h2>Роли</h2>
+                            <p>Добавление и удаление ролей</p>
+                        </div>
+                    </div>
+                    <div class="create-role-form">
+                        <input id="new-role-name" type="text" value="ROLE_" placeholder="ROLE_TRANSLATOR">
+                        <button type="button" class="button button-primary" onclick="createRole()">Добавить</button>
+                    </div>
+                    <div id="roles-container" class="roles-container"></div>
+                </section>
+            </div>
+        </section>
+
+    </section>
+</main>
+
+<!-- MODAL: ADD NOVEL -->
+<div id="add-novel-modal" class="modal-overlay hidden">
+    <div class="modal-card" style="width: min(600px, 90vw);">
+        <h2>Добавить ранобэ</h2>
+        <div class="form-group">
+            <label for="new-novel-title-ru">Название (RU)</label>
+            <input type="text" id="new-novel-title-ru" placeholder="Реинкарнация бездомного">
+        </div>
+        <div class="form-group">
+            <label for="new-novel-title-en">Название (EN)</label>
+            <input type="text" id="new-novel-title-en" placeholder="Mushoku Tensei">
+        </div>
+        <div class="form-group">
+            <label for="new-novel-slug">URL Slug</label>
+            <input type="text" id="new-novel-slug" placeholder="mushoku-tensei">
+        </div>
+        <div class="form-group">
+            <label for="new-novel-author">Автор</label>
+            <input type="text" id="new-novel-author" placeholder="Рифуджин на Магонотэ">
+        </div>
+        <div class="form-group">
+            <label for="new-novel-cover">Обложка (URL)</label>
+            <input type="text" id="new-novel-cover" placeholder="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c">
+        </div>
+        <div class="form-group">
+            <label>Жанры произведения</label>
+            <div id="new-novel-genres" class="genre-checkbox-grid" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:6px;"></div>
+        </div>
+        <div class="form-group">
+            <label for="new-novel-description">Описание произведения</label>
+            <textarea id="new-novel-description" rows="3" style="width:100%; border:1px solid #cfd6e2; border-radius:9px; padding:10px;"></textarea>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="button button-secondary" onclick="closeAddNovelModal()">Отмена</button>
+            <button type="button" class="button button-primary" onclick="submitAddNovel()">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: EDIT NOVEL -->
+<div id="edit-novel-modal" class="modal-overlay hidden">
+    <div class="modal-card" style="width: min(600px, 90vw);">
+        <h2>Редактировать ранобэ</h2>
+        <div class="form-group">
+            <label for="edit-novel-title-ru">Название (RU)</label>
+            <input type="text" id="edit-novel-title-ru">
+        </div>
+        <div class="form-group">
+            <label for="edit-novel-title-en">Название (EN)</label>
+            <input type="text" id="edit-novel-title-en">
+        </div>
+        <div class="form-group">
+            <label for="edit-novel-slug">URL Slug</label>
+            <input type="text" id="edit-novel-slug">
+        </div>
+        <div class="form-group">
+            <label for="edit-novel-author">Автор</label>
+            <input type="text" id="edit-novel-author">
+        </div>
+        <div class="form-group">
+            <label for="edit-novel-cover">Обложка (URL)</label>
+            <input type="text" id="edit-novel-cover">
+        </div>
+        <div class="form-group">
+            <label for="edit-novel-status">Статус</label>
+            <select id="edit-novel-status" style="width:100%; padding:10px; border-radius:9px; border:1px solid #cfd6e2;">
+                <option value="ONGOING">ONGOING (Онгоинг)</option>
+                <option value="COMPLETED">COMPLETED (Завершено)</option>
+                <option value="PAUSED">PAUSED (Приостановлено)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Жанры произведения</label>
+            <div id="edit-novel-genres" class="genre-checkbox-grid" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:6px;"></div>
+        </div>
+        <div class="form-group">
+            <label for="edit-novel-description">Описание произведения</label>
+            <textarea id="edit-novel-description" rows="3" style="width:100%; border:1px solid #cfd6e2; border-radius:9px; padding:10px;"></textarea>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="button button-secondary" onclick="closeEditNovelModal()">Отмена</button>
+            <button type="button" class="button button-primary" onclick="submitEditNovel()">Сохранить изменения</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: ADD CHAPTER -->
+<div id="add-chapter-modal" class="modal-overlay hidden">
+    <div class="modal-card" style="width: min(650px, 90vw);">
+        <h2>Добавить главу новеллы</h2>
+        <div style="display: flex; gap: 12px;">
+            <div class="form-group" style="flex:1;">
+                <label for="new-chapter-tome">Номер тома</label>
+                <input type="number" id="new-chapter-tome" value="1">
+            </div>
+            <div class="form-group" style="flex:1;">
+                <label for="new-chapter-num">Номер главы</label>
+                <input type="number" step="0.1" id="new-chapter-num" value="1">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="new-chapter-title">Название главы</label>
+            <input type="text" id="new-chapter-title" placeholder="Глава 1: Пролог">
+        </div>
+        <div class="form-group">
+            <label for="new-chapter-content">Текст главы (Ранобэ)</label>
+            <textarea id="new-chapter-content" rows="8" style="width:100%; border:1px solid #cfd6e2; border-radius:9px; padding:10px;" placeholder="Введите текст главы здесь..."></textarea>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="button button-secondary" onclick="closeAddChapterModal()">Отмена</button>
+            <button type="button" class="button button-primary" onclick="submitAddChapter()">Опубликовать главу</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: EDIT CHAPTER -->
+<div id="edit-chapter-modal" class="modal-overlay hidden">
+    <div class="modal-card" style="width: min(650px, 90vw);">
+        <h2>Редактировать главу</h2>
+        <div style="display: flex; gap: 12px;">
+            <div class="form-group" style="flex:1;">
+                <label for="edit-chapter-tome">Номер тома</label>
+                <input type="number" id="edit-chapter-tome">
+            </div>
+            <div class="form-group" style="flex:1;">
+                <label for="edit-chapter-num">Номер главы</label>
+                <input type="number" step="0.1" id="edit-chapter-num">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="edit-chapter-title">Название главы</label>
+            <input type="text" id="edit-chapter-title">
+        </div>
+        <div class="form-group">
+            <label for="edit-chapter-content">Текст главы (Ранобэ)</label>
+            <textarea id="edit-chapter-content" rows="8" style="width:100%; border:1px solid #cfd6e2; border-radius:9px; padding:10px;"></textarea>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="button button-secondary" onclick="closeEditChapterModal()">Отмена</button>
+            <button type="button" class="button button-primary" onclick="submitEditChapter()">Сохранить изменения</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
